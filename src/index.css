@@ -1,0 +1,145 @@
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Inter:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 40 33% 94%;
+    --foreground: 0 0% 17%;
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 17%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 17%;
+    --primary: 28 45% 66%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 100 14% 92%;
+    --secondary-foreground: 0 0% 17%;
+    --muted: 40 20% 90%;
+    --muted-foreground: 0 0% 44%;
+    --accent: 28 45% 66%;
+    --accent-foreground: 0 0% 100%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 40 10% 85%;
+    --input: 40 10% 85%;
+    --ring: 28 45% 66%;
+    --radius: 1.25rem;
+    
+    --cream: #F6F2EA;
+    --sage: #E9F0E6;
+    --terracotta: #D4A27F;
+    --charcoal: #2B2B2B;
+    --warm-gray: #6F6F6F;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  
+  html {
+    scroll-behavior: smooth;
+  }
+  
+  body {
+    @apply bg-[#F6F2EA] text-[#2B2B2B] antialiased;
+    font-family: 'Inter', sans-serif;
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 600;
+  }
+}
+
+@layer components {
+  .font-mono-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+  }
+  
+  .card-shadow {
+    box-shadow: 0 18px 40px rgba(0,0,0,0.10);
+  }
+  
+  .card-shadow-lg {
+    box-shadow: 0 22px 50px rgba(0,0,0,0.14);
+  }
+  
+  .grain-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 9999;
+    opacity: 0.04;
+    mix-blend-mode: multiply;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+  }
+  
+  .btn-primary {
+    @apply bg-[#D4A27F] text-white px-6 py-3 rounded-full font-medium transition-all duration-300 hover:bg-[#c4936e] hover:shadow-lg;
+  }
+  
+  .btn-secondary {
+    @apply bg-white/70 backdrop-blur-sm text-[#2B2B2B] px-6 py-3 rounded-full font-medium transition-all duration-300 hover:bg-white hover:shadow-md border border-[#2B2B2B]/10;
+  }
+  
+  .section-cream {
+    @apply bg-[#F6F2EA];
+  }
+  
+  .section-sage {
+    @apply bg-[#E9F0E6];
+  }
+  
+  .text-balance {
+    text-wrap: balance;
+  }
+}
+
+@layer utilities {
+  .animate-fade-in {
+    animation: fadeIn 0.6s ease-out forwards;
+  }
+  
+  .animate-slide-up {
+    animation: slideUp 0.6s ease-out forwards;
+  }
+  
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  
+  @keyframes slideUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #F6F2EA;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #D4A27F;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #c4936e;
+}
