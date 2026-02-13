@@ -43,7 +43,7 @@ export default function Hero() {
        {/* Background Image */}
 <div className="absolute inset-0">
   <img
-    src="/images/bikini-blue.jpg.jpg" 
+    src="images/bikini-blue.jpg.jpg" 
     alt="Annyloveths Stiches Featured Collection"
     className="w-full h-full object-cover"
   />
