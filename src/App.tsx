@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { CartProvider } from './context/CartContext';
 import Header from './components/Header';
 import CartModal from './components/CartModal';
@@ -11,6 +12,17 @@ import Contact from './sections/Contact';
 import './App.css';
 
 function App() {
+  useEffect(() => {
+    // If the user is on a phone, we give the browser a "poke" to show the images
+    if (window.innerWidth < 768) {
+      setTimeout(() => {
+        window.scrollTo(0, 1);
+        window.scrollTo(0, 0);
+        console.log("Mobile view stabilized");
+      }, 1000);
+    }
+  }, []);
+
   return (
     <CartProvider>
       {/* We use min-h-screen to ensure the background covers the whole phone.
