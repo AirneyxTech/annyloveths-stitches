@@ -14,6 +14,18 @@ export default function ProductBrowser() {
   
   const { addToCart } = useCart();
 
+  // SAFETY NET 1: Auto-Poke Logic
+  useEffect(() => {
+    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+    if (isMobile) {
+      setTimeout(() => {
+        window.dispatchEvent(new Event('resize'));
+        window.scrollBy(0, 1);
+        window.scrollBy(0, -1);
+      }, 1000);
+    }
+  }, []);
+
   const filteredProducts = activeFilter === 'all'
     ? products
     : products.filter(p => p.category === activeFilter);
@@ -38,7 +50,7 @@ export default function ProductBrowser() {
   };
 
   const handleWhatsAppOrder = (product: Product) => {
-    const phoneNumber = '2340000000000';
+    const phoneNumber = '2348123456789'; // Your WhatsApp Number
     const message = `Hello, I want to order: ${product.name}`;
     const encodedMessage = encodeURIComponent(message);
     const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodedMessage}`;
@@ -52,7 +64,7 @@ export default function ProductBrowser() {
           setIsVisible(true);
         }
       },
-      { threshold: 0.1 }
+      { threshold: 0.01 } // SAFETY NET 2: Ultra-low threshold for mobile trigger
     );
 
     if (sectionRef.current) {
@@ -115,7 +127,7 @@ export default function ProductBrowser() {
               className={`group bg-white rounded-[22px] overflow-hidden card-shadow hover:shadow-xl transition-all duration-500 hover:-translate-y-1 ${
                 isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
               }`}
-              style={{ transitionDelay: `${index * 100}ms` }}
+              style={{ transitionDelay: `${index * 50}ms` }}
             >
               {/* Image */}
               <div className="relative aspect-[4/5] overflow-hidden">
@@ -123,6 +135,7 @@ export default function ProductBrowser() {
                   src={product.image}
                   alt={product.name}
                   className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                  loading="eager"
                 />
                 <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300" />
               </div>
@@ -170,22 +183,24 @@ export default function ProductBrowser() {
                   >
                     <MessageCircle className="w-4 h-4" />
                   </button>
-                  <div className="md:hidden mt-8 p-4 bg-white/50 border border-dashed border-[#D4A27F] rounded-xl text-center">
-  <p className="text-sm text-[#6F6F6F]">
-    Images not loading? 
-    <button 
-      onClick={() => window.location.reload()} 
-      className="ml-2 text-[#D4A27F] underline font-bold"
-    >
-      Tap to Refresh
-    </button> 
-    or switch to <b>Desktop Mode</b>.
-  </p>
-</div>
                 </div>
               </div>
             </div>
           ))}
+        </div>
+
+        {/* SAFETY NET 3: Manual Refresh Support Notice */}
+        <div className="lg:hidden mt-16 p-8 border-2 border-dashed border-[#D4A27F]/30 rounded-[32px] bg-white/50 text-center">
+          <p className="text-[#2B2B2B] font-serif text-lg font-semibold mb-2">Can't see our items?</p>
+          <p className="text-sm text-[#6F6F6F] mb-6">
+            Tap the button below to fix the display or switch your browser to <b>Desktop Mode</b>.
+          </p>
+          <button 
+            onClick={() => window.location.reload()}
+            className="bg-[#D4A27F] text-white px-10 py-4 rounded-full font-bold shadow-xl hover:bg-[#b38665] transition-all active:scale-95"
+          >
+            Refresh Images
+          </button>
         </div>
       </div>
     </section>

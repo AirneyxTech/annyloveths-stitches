@@ -13,12 +13,19 @@ import './App.css';
 
 function App() {
   useEffect(() => {
-    // If the user is on a phone, we give the browser a "poke" to show the images
-    if (window.innerWidth < 768) {
+    // --- THE AUTO-POKE SCRIPT ---
+    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+    
+    if (isMobile || window.innerWidth < 768) {
       setTimeout(() => {
+        // A small scroll "wakes up" the Intersection Observers
         window.scrollTo(0, 1);
         window.scrollTo(0, 0);
-        console.log("Mobile view stabilized");
+        
+        // Force a resize event to trigger the Desktop-style logic
+        window.dispatchEvent(new Event('resize'));
+        
+        console.log("Mobile view stabilized and poked");
       }, 1000);
     }
   }, []);
