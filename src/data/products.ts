@@ -38,7 +38,7 @@ export const products: Product[] = [
   { id: 'jewelry-3', name: 'Pink Quartz Waistbeads', price: 10000, image: '/images/waistbeads-2.jpg', category: 'jewelry', description: 'Premium pink crystal beaded waist set.' },
   { id: 'jewelry-4', name: 'Golden Hour Waistbeads', price: 10000, image: '/images/waistbeads-3.jpg', category: 'jewelry', description: 'Lustrous gold-tone beads for a royal look.' },
   { id: 'jewelry-5', name: 'Midnight Onyx Jewelry Set', price: 50000, image: '/images/jewelry-onyx.jpg', category: 'jewelry', description: 'Complete black bead necklace and ring set.' },
-  { id: 'jewelry-6', name: 'Sun-Kissed Petal Earrings', price: 2000, image: '/images/earrings-flower.jpg', category: 'jewelry', description: 'Vibrant orange floral crochet earrings.' },
+  { id: 'jewelry-6', name: 'Sun-Kissed Petal Earrings', price: 2000, image: '/images/earrings4.jpg', category: 'jewelry', description: 'Vibrant orange floral crochet earrings.' },
   { id: 'jewelry-7', name: 'Pastel Daisy Studs', price: 2000, image: '/images/earrings-daisy.jpg', category: 'jewelry', description: 'Small, elegant daisy-pattern earrings.' },
   { id: 'jewelry-8', name: 'Artisan Earring Collection', price: 2000, image: '/images/earrings-multi.jpg', category: 'jewelry', description: 'Handpicked geometric crochet earring sets.' },
   { id: 'acc-1', name: 'Cloud-Soft Headset Covers', price: 5000, image: '/images/headset-cover.jpg', category: 'jewelry', description: 'Fluffy crochet covers for your headphones.' },
