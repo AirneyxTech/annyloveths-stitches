@@ -38,8 +38,9 @@ export default function ProductBrowser() {
   };
 
   const handleWhatsAppOrder = (product: Product) => {
-    const phoneNumber = '2340000000000';
-    const message = `Hello, I want to order: ${product.name}`;
+    // UPDATED: Use your actual business WhatsApp number here
+    const phoneNumber = '2348123456789'; 
+    const message = `Hello, I want to order: ${product.name} (₦${product.price.toLocaleString()})`;
     const encodedMessage = encodeURIComponent(message);
     const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodedMessage}`;
     window.open(whatsappUrl, '_blank');
@@ -52,7 +53,7 @@ export default function ProductBrowser() {
           setIsVisible(true);
         }
       },
-      { threshold: 0.1 }
+      { threshold: 0.01 } // Lowered threshold to 0.01 for mobile
     );
 
     if (sectionRef.current) {
@@ -76,7 +77,7 @@ export default function ProductBrowser() {
       className="relative w-full min-h-screen bg-[#F6F2EA] py-20 lg:py-28"
     >
       <div className="px-6 lg:px-[7vw]">
-        {/* Header */}
+        {/* Header - Stays with animation but threshold is now lower */}
         <div 
           className={`mb-12 transition-all duration-700 ${
             isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'
@@ -107,15 +108,12 @@ export default function ProductBrowser() {
           </div>
         </div>
 
-        {/* Product Grid */}
+        {/* Product Grid - REMOVED OPACITY-0 SO THEY SHOW IMMEDIATELY */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 lg:gap-8">
           {filteredProducts.map((product, index) => (
             <div
               key={product.id}
-              className={`group bg-white rounded-[22px] overflow-hidden card-shadow hover:shadow-xl transition-all duration-500 hover:-translate-y-1 ${
-                isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
-              }`}
-              style={{ transitionDelay: `${index * 100}ms` }}
+              className="group bg-white rounded-[22px] overflow-hidden card-shadow hover:shadow-xl transition-all duration-500 hover:-translate-y-1 opacity-100 translate-y-0"
             >
               {/* Image */}
               <div className="relative aspect-[4/5] overflow-hidden">
@@ -123,6 +121,7 @@ export default function ProductBrowser() {
                   src={product.image}
                   alt={product.name}
                   className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                  loading="lazy"
                 />
                 <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300" />
               </div>
