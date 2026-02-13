@@ -2,8 +2,22 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" />
     <title>Annyloveths Boutique</title>
+    
+    <script>
+      window.addEventListener('load', function() {
+        setTimeout(function() {
+          window.dispatchEvent(new Event('resize'));
+          // This forces the browser to re-paint the grid
+          document.body.style.display = 'none';
+          document.body.offsetHeight; // Trigger a reflow
+          document.body.style.display = 'block';
+          console.log("Mobile layout forced refresh triggered");
+        }, 500);
+      });
+    </script>
+
     <script type="module" crossorigin src="./assets/index-DQBd8LWM.js"></script>
     <link rel="stylesheet" crossorigin href="./assets/index-BRL0SJty.css">
   </head>
