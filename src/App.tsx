@@ -1,3 +1,4 @@
+import { SpeedInsights } from '@vercel/speed-insights/react';
 import { CartProvider } from './context/CartContext';
 import Header from './components/Header';
 import CartModal from './components/CartModal';
@@ -33,6 +34,9 @@ function App() {
           <About />
           <Contact />
         </main>
+        
+        {/* Speed Insights */}
+        <SpeedInsights />
       </div>
     </CartProvider>
   );
