@@ -55,17 +55,19 @@ export default function About() {
               isVisible ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-10'
             }`}
           >
-            <span className="font-mono-label text-[#D4A27F] mb-4 block">
-              Our Story
-            </span>
+            <span className="font-mono-label text-lg text-[#D4A27F] mb-4 block uppercase tracking-wider">
+  Our Story
+</span>
             <h2 className="font-serif text-4xl lg:text-5xl text-[#2B2B2B] font-semibold mb-6">
               About the Maker
             </h2>
             <p className="text-[#6F6F6F] text-lg leading-relaxed mb-8">
-              I'm a self-taught maker working from a small studio. Every piece is cut, stitched, or woven slowly—meant to be worn often and kept for years.
+              I’m AnnyLoveth, the hands behind Annyloveth's Craft Haus. years.
             </p>
             <p className="text-[#6F6F6F] leading-relaxed mb-10">
-              What started as a hobby has grown into a small business fueled by a love for slow fashion and sustainable practices. Each item is made to order or in small batches to minimize waste and ensure quality.
+             Thoughtfully handcrafted crochet—made slow, made with love, and made to last. 
+  I specialize in handmade crochet pieces crafted with love, patience, and purpose. 
+  I turn yarn into wearable art that feels as good as it looks.
             </p>
 
             {/* Stats */}

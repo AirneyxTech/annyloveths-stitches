@@ -37,7 +37,7 @@ export default function Contact() {
   };
 
   const handleEmailClick = () => {
-    window.location.href = 'mailto:hello@stitchandstone.studio';
+    window.location.href = 'mailto:anuoluwapopamilerin21@gmail.com';
   };
 
   const handleWhatsAppClick = () => {
@@ -83,7 +83,7 @@ export default function Contact() {
               </div>
               <div>
                 <span className="block text-sm text-[#6F6F6F] mb-1">Email</span>
-                <span className="font-medium text-[#2B2B2B]">hello@stitchandstone.studio</span>
+                <span className="font-medium text-[#2B2B2B]">anuoluwapopamilerin21@gmail.com</span>
               </div>
             </button>
 
@@ -155,17 +155,15 @@ export default function Contact() {
                 © Annyloveths Stitch Boutique. Built with care.
               </p>
               <div className="flex items-center gap-4">
-                <a
-                  href="#"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    window.open('https://instagram.com', '_blank');
-                  }}
-                  className="p-2 hover:bg-[#2B2B2B]/5 rounded-full transition-colors"
-                  aria-label="Instagram"
-                >
-                  <Instagram className="w-5 h-5 text-[#6F6F6F]" />
-                </a>
+               <a
+  href="https://www.instagram.com/annyloveth_crochet?igsh=MWp3ZWdrZnZqOW45dg=="
+  target="_blank"
+  rel="noopener noreferrer"
+  className="p-2 hover:bg-[#2B2B2B]/5 rounded-full transition-colors"
+  aria-label="Instagram"
+>
+  <Instagram className="w-5 h-5 text-[#6F6F6F]" />
+</a>
               </div>
             </div>
           </footer>
