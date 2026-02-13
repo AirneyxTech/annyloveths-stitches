@@ -170,6 +170,18 @@ export default function ProductBrowser() {
                   >
                     <MessageCircle className="w-4 h-4" />
                   </button>
+                  <div className="md:hidden mt-8 p-4 bg-white/50 border border-dashed border-[#D4A27F] rounded-xl text-center">
+  <p className="text-sm text-[#6F6F6F]">
+    Images not loading? 
+    <button 
+      onClick={() => window.location.reload()} 
+      className="ml-2 text-[#D4A27F] underline font-bold"
+    >
+      Tap to Refresh
+    </button> 
+    or switch to <b>Desktop Mode</b>.
+  </p>
+</div>
                 </div>
               </div>
             </div>
