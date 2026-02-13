@@ -1,62 +1,28 @@
-import { useEffect, useRef, useState } from 'react';
 import { ArrowRight } from 'lucide-react';
 
 export default function FeaturedKnits() {
-  const sectionRef = useRef<HTMLElement>(null);
-  const [isVisible, setIsVisible] = useState(false);
-
-  useEffect(() => {
-    // We use a smaller threshold for mobile so it triggers as soon as it's touched
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setIsVisible(true);
-        }
-      },
-      { 
-        threshold: 0.01, // Changed from 0.2 to 0.01 for instant mobile trigger
-        rootMargin: '100px' // Starts the animation 100px before it's on screen
-      }
-    );
-
-    if (sectionRef.current) {
-      observer.observe(sectionRef.current);
-    }
-
-    return () => observer.disconnect();
-  }, []);
-
   const scrollToCollection = () => {
     document.getElementById('collection')?.scrollIntoView({ behavior: 'smooth' });
   };
 
   return (
     <section
-      ref={sectionRef}
       className="relative w-full min-h-screen bg-[#F6F2EA] py-20 lg:py-0 lg:flex lg:items-center"
     >
       <div className="w-full px-6 lg:px-[7vw]">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8 lg:h-[72vh]">
           {/* Micro Label */}
-          <span
-            className={`font-mono-label text-[#6F6F6F] lg:absolute lg:left-[7vw] lg:top-[9vh] transition-all duration-700 ${
-              isVisible ? 'opacity-100' : 'opacity-0'
-            }`}
-          >
+          <span className="font-mono-label text-[#6F6F6F] lg:absolute lg:left-[7vw] lg:top-[9vh] opacity-100">
             Featured
           </span>
 
           {/* Left Feature Card */}
-          <div
-            className={`relative h-[50vh] lg:h-full rounded-[28px] overflow-hidden card-shadow transition-all duration-1000 ${
-              isVisible ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-10'
-            }`}
-          >
+          <div className="relative h-[50vh] lg:h-full rounded-[28px] overflow-hidden card-shadow opacity-100 translate-x-0">
             <img
               src="/images/sweater-custom.jpg" 
               alt="Annyloveths Custom Sweater"
               className="w-full h-full object-cover"
-              loading="eager" // Force immediate load on mobile
+              loading="eager"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
             <div className="absolute bottom-0 left-8 right-8 pb-10">
@@ -71,11 +37,7 @@ export default function FeaturedKnits() {
 
           {/* Right Column */}
           <div className="flex flex-col gap-6 lg:gap-8 h-full">
-            <div
-              className={`flex-1 rounded-[22px] bg-white/70 backdrop-blur-sm p-8 flex flex-col justify-center card-shadow transition-all duration-1000 delay-200 ${
-                isVisible ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-10'
-              }`}
-            >
+            <div className="flex-1 rounded-[22px] bg-white/70 backdrop-blur-sm p-8 flex flex-col justify-center card-shadow opacity-100 translate-x-0">
               <h3 className="font-serif text-2xl lg:text-3xl text-[#2B2B2B] font-semibold mb-3">
                 Crafted with Love.
               </h3>
@@ -84,16 +46,12 @@ export default function FeaturedKnits() {
               </p>
             </div>
 
-            <div
-              className={`flex-1 rounded-[22px] overflow-hidden card-shadow relative transition-all duration-1000 delay-400 ${
-                isVisible ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-10'
-              }`}
-            >
+            <div className="flex-1 rounded-[22px] overflow-hidden card-shadow relative opacity-100 translate-x-0">
               <img
                 src="/images/hat-granny.jpg" 
                 alt="Handmade Accessories Collection"
                 className="w-full h-full object-cover"
-                loading="eager" // Force immediate load on mobile
+                loading="eager"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
               <div className="absolute bottom-6 left-6 right-6 flex items-center justify-between">
