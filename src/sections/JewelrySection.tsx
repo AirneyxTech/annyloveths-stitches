@@ -40,7 +40,7 @@ export default function JewelrySection() {
             }`}
           >
             <img
-  src="images/bag-tapestry.jpg" 
+  src="/images/bag-tapestry.jpg" 
   alt="Handmade jewelry collection"
   className="w-full h-full object-cover"
 />
@@ -64,7 +64,7 @@ export default function JewelrySection() {
   }`}
 >
   <img
-    src="images/bag-flower.jpg" 
+    src="/images/bag-flower.jpg" 
     alt="Handmade crochet bag"
     className="w-full h-full object-cover"
   />

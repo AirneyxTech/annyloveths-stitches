@@ -166,7 +166,7 @@ export default function CustomOrder() {
             }`}
           >
             <img
-  src="/images/sweater-custom.jpg.jpg"
+  src="/images/sweater-custom.jpg"
   alt="Annyloveths Custom Handmade Sweater"
   className="w-full h-full object-cover"
 />
