@@ -50,7 +50,7 @@ export default function FeaturedKnits() {
           >
            {/* Left Column - Large Image */}
 <img
-  src="images/sweater-custom.jpg.jpg" 
+  src="images/sweater-custom.jpg" 
   alt="Annyloveths Custom Sweater"
   className="w-full h-full object-cover"
 />
@@ -89,7 +89,7 @@ export default function FeaturedKnits() {
     }`}
   >
     <img
-      src="images/hat-granny.jpg.jpg" 
+      src="images/hat-granny.jpg" 
       alt="Handmade Accessories Collection"
       className="w-full h-full object-cover"
     />

@@ -43,7 +43,7 @@ export default function About() {
             }`}
           >
             <img
-              src="images/about-portrait.jpg"
+              src="/images/about-portrait.jpg"
               alt="The maker in her studio"
               className="w-full h-full object-cover"
             />
