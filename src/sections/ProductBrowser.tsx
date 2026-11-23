@@ -1,36 +1,29 @@
-import { useState, useEffect, useRef } from 'react';
-import { MessageCircle, ShoppingBag, Check } from 'lucide-react';
-import { products } from '../data/products';
+import { useState } from 'react';
+import { products, Category } from '../data/products';
 import { useCart } from '../context/CartContext';
-import type { Product } from '../data/products';
+import { ShoppingBag, ArrowRight } from 'lucide-react';
+import { motion } from 'framer-motion';
 
-type Category = 'all' | 'knitwear' | 'jewelry' | 'apparel';
+const categories: (Category | 'All')[] = [
+  'All',
+  'Bags & Purses',
+  'Gowns & Dresses',
+  'Sets & Swimwear',
+  'Hats & Scarves',
+  'Waistbeads & Jewelry',
+  'Accessories',
+  'Home & Nursery'
+];
 
 export default function ProductBrowser() {
-  const [activeFilter, setActiveFilter] = useState<Category>('all');
-  const [addedItems, setAddedItems] = useState<Set<string>>(new Set());
-  const sectionRef = useRef<HTMLElement>(null);
-  const [isVisible, setIsVisible] = useState(false);
-  
-  const { addToCart } = useCart();
+  const [activeCategory, setActiveCategory] = useState<Category | 'All'>('All');
+  const { addToCart, setIsCartOpen } = useCart();
 
-  // SAFETY NET 1: Auto-Poke Logic
-  useEffect(() => {
-    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-    if (isMobile) {
-      setTimeout(() => {
-        window.dispatchEvent(new Event('resize'));
-        window.scrollBy(0, 1);
-        window.scrollBy(0, -1);
-      }, 1000);
-    }
-  }, []);
+  const filteredProducts = activeCategory === 'All' 
+    ? products 
+    : products.filter(p => p.category === activeCategory);
 
-  const filteredProducts = activeFilter === 'all'
-    ? products
-    : products.filter(p => p.category === activeFilter);
-
-  const handleAddToCart = (product: Product) => {
+  const handleAddToCart = (product: typeof products[0]) => {
     addToCart({
       id: product.id,
       name: product.name,
@@ -38,170 +31,76 @@ export default function ProductBrowser() {
       image: product.image,
       category: product.category
     });
-    
-    setAddedItems(prev => new Set(prev).add(product.id));
-    setTimeout(() => {
-      setAddedItems(prev => {
-        const next = new Set(prev);
-        next.delete(product.id);
-        return next;
-      });
-    }, 2000);
+    setIsCartOpen(true);
   };
-
-  const handleWhatsAppOrder = (product: Product) => {
-    const phoneNumber = '2348123456789'; // Your WhatsApp Number
-    const message = `Hello, I want to order: ${product.name}`;
-    const encodedMessage = encodeURIComponent(message);
-    const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodedMessage}`;
-    window.open(whatsappUrl, '_blank');
-  };
-
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setIsVisible(true);
-        }
-      },
-      { threshold: 0.01 } // SAFETY NET 2: Ultra-low threshold for mobile trigger
-    );
-
-    if (sectionRef.current) {
-      observer.observe(sectionRef.current);
-    }
-
-    return () => observer.disconnect();
-  }, []);
-
-  const filters: { value: Category; label: string }[] = [
-    { value: 'all', label: 'All' },
-    { value: 'knitwear', label: 'Knitwear' },
-    { value: 'jewelry', label: 'Jewelry' },
-    { value: 'apparel', label: 'Apparel' }
-  ];
 
   return (
-    <section
-      ref={sectionRef}
-      id="collection"
-      className="relative w-full min-h-screen bg-[#F6F2EA] py-20 lg:py-28"
-    >
-      <div className="px-6 lg:px-[7vw]">
+    <section id="collection" className="py-24 bg-[#111217] relative">
+      <div className="max-w-7xl mx-auto px-6 lg:px-12">
+        
         {/* Header */}
-        <div 
-          className={`mb-12 transition-all duration-700 ${
-            isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'
-          }`}
-        >
-          <h2 className="font-serif text-4xl lg:text-5xl text-[#2B2B2B] font-semibold mb-4">
-            Browse the Collection
-          </h2>
-          <p className="text-[#6F6F6F] text-lg mb-8">
-            Filter by category, then tap to order via WhatsApp.
-          </p>
-          
-          {/* Filter Buttons */}
-          <div className="flex flex-wrap gap-3">
-            {filters.map(filter => (
-              <button
-                key={filter.value}
-                onClick={() => setActiveFilter(filter.value)}
-                className={`px-6 py-2.5 rounded-full text-sm font-medium transition-all duration-300 ${
-                  activeFilter === filter.value
-                    ? 'bg-[#D4A27F] text-white shadow-md'
-                    : 'bg-white/70 text-[#2B2B2B] hover:bg-white hover:shadow-sm border border-[#2B2B2B]/10'
-                }`}
-              >
-                {filter.label}
-              </button>
-            ))}
-          </div>
+        <div className="text-center mb-16">
+          <span className="text-[#7239FA] text-sm font-bold tracking-[0.2em] uppercase mb-4 block">The Collection</span>
+          <h2 className="text-4xl md:text-5xl font-serif text-white font-bold mb-4">Crafted with Intention</h2>
+          <p className="text-gray-400 max-w-2xl mx-auto">Discover our handmade pieces, made with love and the finest yarns.</p>
         </div>
 
-        {/* Product Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 lg:gap-8">
-          {filteredProducts.map((product, index) => (
-            <div
-              key={product.id}
-              className={`group bg-white rounded-[22px] overflow-hidden card-shadow hover:shadow-xl transition-all duration-500 hover:-translate-y-1 ${
-                isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
+        {/* Category Filters */}
+        <div className="flex flex-wrap justify-center gap-2 mb-12">
+          {categories.map((cat) => (
+            <button
+              key={cat}
+              onClick={() => setActiveCategory(cat)}
+              className={`px-5 py-2 rounded-full text-sm font-medium transition-all duration-300 ${
+                activeCategory === cat 
+                  ? 'bg-[#7239FA] text-white shadow-[0_0_15px_rgba(114,57,250,0.4)]' 
+                  : 'bg-white/5 text-gray-400 hover:bg-white/10 hover:text-white'
               }`}
-              style={{ transitionDelay: `${index * 50}ms` }}
             >
-              {/* Image */}
-              <div className="relative aspect-[4/5] overflow-hidden">
-                <img
-                  src={product.image}
-                  alt={product.name}
-                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                  loading="eager"
-                />
-                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300" />
-              </div>
-              
-              {/* Content */}
-              <div className="p-5">
-                <span className="font-mono-label text-[#6F6F6F] text-[10px]">
-                  {product.category}
-                </span>
-                <h3 className="font-serif text-xl text-[#2B2B2B] font-semibold mt-1 mb-1">
-                  {product.name}
-                </h3>
-                <p className="text-[#6F6F6F] text-sm mb-3 line-clamp-2">
-                  {product.description}
-                </p>
-                <p className="font-serif text-xl text-[#D4A27F] font-semibold mb-4">
-                  ₦{product.price.toLocaleString()}
-                </p>
-                
-                {/* Actions */}
-                <div className="flex gap-2">
-                  <button
-                    onClick={() => handleAddToCart(product)}
-                    className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-full text-sm font-medium transition-all duration-300 ${
-                      addedItems.has(product.id)
-                        ? 'bg-green-500 text-white'
-                        : 'bg-[#2B2B2B] text-white hover:bg-[#3B3B3B]'
-                    }`}
-                  >
-                    {addedItems.has(product.id) ? (
-                      <>
-                        <Check className="w-4 h-4" />
-                        Added
-                      </>
-                    ) : (
-                      <>
-                        <ShoppingBag className="w-4 h-4" />
-                        Add to Cart
-                      </>
-                    )}
-                  </button>
-                  <button
-                    onClick={() => handleWhatsAppOrder(product)}
-                    className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-full text-sm font-medium bg-[#D4A27F]/10 text-[#D4A27F] hover:bg-[#D4A27F]/20 transition-all duration-300"
-                  >
-                    <MessageCircle className="w-4 h-4" />
-                  </button>
-                </div>
-              </div>
-            </div>
+              {cat}
+            </button>
           ))}
         </div>
 
-        {/* SAFETY NET 3: Manual Refresh Support Notice */}
-        <div className="lg:hidden mt-16 p-8 border-2 border-dashed border-[#D4A27F]/30 rounded-[32px] bg-white/50 text-center">
-          <p className="text-[#2B2B2B] font-serif text-lg font-semibold mb-2">Can't see our items?</p>
-          <p className="text-sm text-[#6F6F6F] mb-6">
-            Tap the button below to fix the display or switch your browser to <b>Desktop Mode</b>.
-          </p>
-          <button 
-            onClick={() => window.location.reload()}
-            className="bg-[#D4A27F] text-white px-10 py-4 rounded-full font-bold shadow-xl hover:bg-[#b38665] transition-all active:scale-95"
-          >
-            Refresh Images
-          </button>
+        {/* Product Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          {filteredProducts.map((product, index) => (
+            <motion.div
+              key={product.id}
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5, delay: index * 0.05 }}
+              className="group bg-white/5 border border-white/10 rounded-3xl overflow-hidden hover:border-[#7239FA]/50 transition-all duration-500 flex flex-col"
+            >
+              <div className="aspect-[4/5] overflow-hidden relative">
+                <img 
+                  src={product.image} 
+                  alt={product.name} 
+                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-[#111217] via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+              </div>
+              
+              <div className="p-5 flex-1 flex flex-col">
+                <span className="text-xs text-[#7239FA] font-semibold mb-2">{product.category}</span>
+                <h3 className="text-lg font-bold text-white mb-1">{product.name}</h3>
+                <p className="text-gray-400 text-sm mb-4 line-clamp-2">{product.description}</p>
+                
+                <div className="mt-auto flex items-center justify-between">
+                  <span className="text-xl font-serif text-white font-bold">₦{product.price.toLocaleString()}</span>
+                  <button 
+                    onClick={() => handleAddToCart(product)}
+                    className="p-3 bg-white/10 rounded-full text-white hover:bg-[#7239FA] transition-colors duration-300"
+                  >
+                    <ShoppingBag className="w-5 h-5" />
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          ))}
         </div>
+        
       </div>
     </section>
   );
