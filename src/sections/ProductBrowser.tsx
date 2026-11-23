@@ -1,7 +1,7 @@
 import { useState } from 'react';
-import { products, Category } from '../data/products';
+import { products, type Category } from '../data/products';
 import { useCart } from '../context/CartContext';
-import { ShoppingBag, ArrowRight } from 'lucide-react';
+import { ShoppingBag } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 const categories: (Category | 'All')[] = [
