@@ -15,12 +15,15 @@ export default function TrackOrder() {
     setError('');
     setOrder(null);
 
-    // Fetch order matching the short ID (starts with the UUID) and phone number
+    // Clean the inputs so they match perfectly
+    const cleanId = orderId.replace('#', '').trim().toLowerCase();
+    const cleanPhone = phone.trim();
+
     const { data, error } = await supabase
       .from('orders')
       .select('*')
-      .ilike('id', `${orderId.toLowerCase()}%`) // Matches the start of the UUID
-      .eq('phone_number', phone)
+      .ilike('id', `${cleanId}%`) 
+      .ilike('phone_number', `%${cleanPhone}%`) // Using ilike so it accepts +234 or 091
       .single();
 
     if (error || !data) {
@@ -32,7 +35,7 @@ export default function TrackOrder() {
   };
 
   return (
-    <section className="min-h-screen bg-[#faf5ff] py-20 flex flex-col items-center">
+    <section id="track" className="min-h-screen bg-[#faf5ff] py-20 flex flex-col items-center pt-32">
       <div className="w-full max-w-md px-6">
         <div className="text-center mb-8">
           <Package className="w-12 h-12 text-[#4c1d95] mx-auto mb-4" />
@@ -40,20 +43,20 @@ export default function TrackOrder() {
           <p className="text-gray-500 mt-2">Enter your details to see your order status.</p>
         </div>
 
-        <form onSubmit={handleTrack} className="bg-white p-6 rounded-3xl shadow-xl space-y-4">
-          <input type="text" required placeholder="Order ID (e.g. A1B2C3)" value={orderId} onChange={e => setOrderId(e.target.value)} className="w-full px-4 py-3 rounded-xl bg-purple-50 border border-purple-100 outline-none" />
-          <input type="tel" required placeholder="Phone Number" value={phone} onChange={e => setPhone(e.target.value)} className="w-full px-4 py-3 rounded-xl bg-purple-50 border border-purple-100 outline-none" />
+        <form onSubmit={handleTrack} className="bg-white p-6 rounded-3xl shadow-xl space-y-4 border border-purple-50">
+          <input type="text" required placeholder="Order ID (e.g. 74C5E5A1)" value={orderId} onChange={e => setOrderId(e.target.value)} className="w-full px-4 py-3 rounded-xl bg-purple-50 border border-purple-100 outline-none focus:border-[#4c1d95]" />
+          <input type="tel" required placeholder="Phone Number" value={phone} onChange={e => setPhone(e.target.value)} className="w-full px-4 py-3 rounded-xl bg-purple-50 border border-purple-100 outline-none focus:border-[#4c1d95]" />
           <button type="submit" disabled={isLoading} className="btn-primary w-full flex items-center justify-center gap-2">
             <Search className="w-4 h-4" />
             {isLoading ? 'Searching...' : 'Track Order'}
           </button>
         </form>
 
-        {error && <p className="text-red-500 text-center mt-6 font-medium">{error}</p>}
+        {error && <p className="text-red-500 text-center mt-6 font-medium bg-red-50 p-3 rounded-xl">{error}</p>}
 
         {order && (
-          <div className="bg-white p-6 rounded-3xl shadow-xl mt-6">
-            <h3 className="font-bold text-lg mb-4 border-b pb-2">Order #{order.id.split('-')[0].toUpperCase()}</h3>
+          <div className="bg-white p-6 rounded-3xl shadow-xl mt-6 border border-purple-50">
+            <h3 className="font-bold text-lg mb-4 border-b border-purple-50 pb-2 text-[#2B2B2B]">Order #{order.id.split('-')[0].toUpperCase()}</h3>
             <div className="space-y-3">
               <div className="flex justify-between">
                 <span className="text-gray-500">Status:</span>
@@ -65,10 +68,10 @@ export default function TrackOrder() {
               </div>
               <div className="flex justify-between">
                 <span className="text-gray-500">Total:</span>
-                <span className="font-bold">₦{order.total_amount.toLocaleString()}</span>
+                <span className="font-bold text-[#2B2B2B]">₦{order.total_amount.toLocaleString()}</span>
               </div>
             </div>
-            <div className="mt-6 pt-4 border-t">
+            <div className="mt-6 pt-4 border-t border-purple-50">
               <p className="text-sm text-gray-500 italic">Need help? Message us on WhatsApp with your Order ID.</p>
             </div>
           </div>
