@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { X, ShoppingBag } from 'lucide-react';
 import { useCart } from '../context/CartContext';
-import { Product } from '../data/products';
+import type { Product } from '../data/products';
 
 export default function ProductModal({ product, onClose }: { product: Product | null, onClose: () => void }) {
   const { addToCart } = useCart();
