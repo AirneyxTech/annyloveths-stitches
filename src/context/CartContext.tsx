@@ -7,6 +7,8 @@ export interface CartItem {
   image: string;
   category: string;
   quantity: number;
+  selectedColor?: string;
+  customizationNotes?: string;
 }
 
 interface CartContextType {
@@ -28,38 +30,36 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
 
-  // Load cart from LocalStorage on mount
   useEffect(() => {
     const savedCart = localStorage.getItem('Annyloveths-cart');
     if (savedCart) {
-      try {
-        setItems(JSON.parse(savedCart));
-      } catch (e) {
-        console.error('Failed to parse cart:', e);
-      }
+      try { setItems(JSON.parse(savedCart)); } catch (e) { console.error(e); }
     }
     setIsLoaded(true);
   }, []);
 
-  // Save cart to LocalStorage whenever it changes
   useEffect(() => {
-    if (isLoaded) {
-      localStorage.setItem('Annyloveths-cart', JSON.stringify(items));
-    }
+    if (isLoaded) localStorage.setItem('Annyloveths-cart', JSON.stringify(items));
   }, [items, isLoaded]);
 
   const addToCart = useCallback((newItem: Omit<CartItem, 'quantity'>) => {
     setItems(prev => {
-      const existingItem = prev.find(item => item.id === newItem.id);
+      // Find item with same ID AND same customization
+      const existingItem = prev.find(item => 
+        item.id === newItem.id && 
+        item.selectedColor === newItem.selectedColor && 
+        item.customizationNotes === newItem.customizationNotes
+      );
       if (existingItem) {
         return prev.map(item =>
-          item.id === newItem.id
+          item.id === existingItem.id && item.selectedColor === existingItem.selectedColor
             ? { ...item, quantity: item.quantity + 1 }
             : item
         );
       }
       return [...prev, { ...newItem, quantity: 1 }];
     });
+    setIsCartOpen(true);
   }, []);
 
   const removeFromCart = useCallback((id: string) => {
@@ -67,38 +67,17 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const updateQuantity = useCallback((id: string, quantity: number) => {
-    if (quantity <= 0) {
-      removeFromCart(id);
-      return;
-    }
-    setItems(prev =>
-      prev.map(item =>
-        item.id === id ? { ...item, quantity } : item
-      )
-    );
+    if (quantity <= 0) { removeFromCart(id); return; }
+    setItems(prev => prev.map(item => item.id === id ? { ...item, quantity } : item));
   }, [removeFromCart]);
 
-  const clearCart = useCallback(() => {
-    setItems([]);
-  }, []);
+  const clearCart = useCallback(() => setItems([]), []);
 
   const totalItems = items.reduce((sum, item) => sum + item.quantity, 0);
   const totalPrice = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
 
   return (
-    <CartContext.Provider
-      value={{
-        items,
-        addToCart,
-        removeFromCart,
-        updateQuantity,
-        clearCart,
-        totalItems,
-        totalPrice,
-        isCartOpen,
-        setIsCartOpen,
-      }}
-    >
+    <CartContext.Provider value={{ items, addToCart, removeFromCart, updateQuantity, clearCart, totalItems, totalPrice, isCartOpen, setIsCartOpen }}>
       {children}
     </CartContext.Provider>
   );
@@ -106,8 +85,6 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
 export function useCart() {
   const context = useContext(CartContext);
-  if (context === undefined) {
-    throw new Error('useCart must be used within a CartProvider');
-  }
+  if (!context) throw new Error('useCart must be used within a CartProvider');
   return context;
 }
