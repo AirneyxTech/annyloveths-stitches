@@ -15,17 +15,19 @@ export default function CheckoutModal({ isOpen, onClose }: { isOpen: boolean, on
     e.preventDefault();
     setIsLoading(true);
 
+    // 1. Save to Database
     const { data, error } = await supabase.from('orders').insert([{
       customer_name: formData.name,
       phone_number: formData.phone,
-      email: formData.email,
+      email: formData.email.trim(),
       delivery_address: formData.address,
       items: items,
       total_amount: totalPrice,
     }]).select('id').single();
 
+    // If there is a database error, SHOW IT LOUDLY
     if (error || !data) {
-      alert("Error saving order. Please check your internet and try again.");
+      alert("DATABASE ERROR: " + (error?.message || "Unknown error"));
       setIsLoading(false);
       return;
     }
@@ -33,9 +35,11 @@ export default function CheckoutModal({ isOpen, onClose }: { isOpen: boolean, on
     const generatedId = data.id.split('-')[0].toUpperCase();
     setOrderId(generatedId);
 
-    const itemList = items.map(i => `- ${i.quantity}x ${i.name} (₦${i.price * i.quantity})`).join('\n');
-    const text = `Hello AnnyLoveth! I just placed an order on your website.\n\n*Order ID:* #${generatedId}\n\n*Items:*\n${itemList}\n\n*Total:* ₦${totalPrice}\n\n*Name:* ${formData.name}\n*Phone:* ${formData.phone}\n*Address:* ${formData.address}`;
+    // 2. Build WhatsApp Message
+    const itemList = items.map(i => `- ${i.quantity}x ${i.name} ${i.selectedColor ? `(${i.selectedColor})` : ''} ${i.customizationNotes ? `[Note: ${i.customizationNotes}]` : ''}`).join('\n');
+    const text = `Hello AnnyLoveth! I just placed an order on your website.\n\n*Order ID:* #${generatedId}\n\n*Items:*\n${itemList}\n\n*Total:* ₦${totalPrice.toLocaleString()}\n\n*Name:* ${formData.name}\n*Phone:* ${formData.phone}\n*Address:* ${formData.address}`;
     
+    // 3. Open WhatsApp & Clear Cart
     window.open(`https://wa.me/2349118004875?text=${encodeURIComponent(text)}`, '_blank');
     clearCart();
     setIsLoading(false);
@@ -54,6 +58,7 @@ export default function CheckoutModal({ isOpen, onClose }: { isOpen: boolean, on
             <h2 className="text-2xl font-serif font-bold text-[#4c1d95] mb-2">Order Placed!</h2>
             <p className="text-gray-600 mb-4">Your Order ID is: <strong className="text-xl text-[#4c1d95]">#{orderId}</strong></p>
             <p className="text-sm text-gray-500 mb-6">We've opened WhatsApp for you to confirm the order. If it didn't open, <a href={`https://wa.me/2349118004875`} className="text-[#4c1d95] underline font-bold">click here</a>.</p>
+            <p className="text-sm text-[#4c1d95] bg-purple-50 p-3 rounded-xl mb-4">Save this Order ID! You can track it or view it in the "My Orders" page using your email.</p>
             <button onClick={onClose} className="btn-primary w-full">Done</button>
           </div>
         ) : (

@@ -15,7 +15,6 @@ import CustomerPortal from './pages/CustomerPortal';
 import './App.css';
 
 function App() {
-  // Check URLs for specific pages
   const isAdmin = window.location.pathname === '/admin';
   const isCustomerPortal = window.location.pathname === '/my-orders';
 
@@ -30,20 +29,12 @@ function App() {
     }
   }, []);
 
-  // 1. Admin Dashboard Route
-  if (isAdmin) {
-    return <Admin />;
-  }
+  if (isAdmin) return <Admin />;
+  if (isCustomerPortal) return <CustomerPortal />;
 
-  // 2. Customer Portal Route
-  if (isCustomerPortal) {
-    return <CustomerPortal />;
-  }
-
-  // 3. Normal Website Route
   return (
     <CartProvider>
-      <div className="relative min-h-screen overflow-x-hidden bg-[#111217]">
+      <div className="relative min-h-screen overflow-x-hidden bg-[#faf5ff]">
         <div className="grain-overlay pointer-events-none fixed inset-0 z-50 opacity-[0.03]" />
         <Header />
         <CartModal />
