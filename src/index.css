@@ -6,28 +6,24 @@
 
 @layer base {
   :root {
-    --background: 224 15% 8%; /* Obsidian */
-    --foreground: 220 14% 96%; /* Ice Grey */
-    --card: 224 15% 10%;
-    --card-foreground: 220 14% 96%;
-    --popover: 224 15% 10%;
-    --popover-foreground: 220 14% 96%;
-    --primary: 258 90% 66%; /* Electric Violet */
+    --background: 270 100% 98%; /* Very Light Lilac Background */
+    --foreground: 270 50% 15%; /* Deep Purple Text */
+    --card: 0 0% 100%;
+    --card-foreground: 270 50% 15%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 270 50% 15%;
+    --primary: 270 60% 30%; /* Royal Purple */
     --primary-foreground: 0 0% 100%;
-    --secondary: 224 15% 15%;
-    --secondary-foreground: 220 14% 96%;
-    --muted: 224 15% 15%;
-    --muted-foreground: 220 10% 65%;
-    --accent: 258 90% 66%;
-    --accent-foreground: 0 0% 100%;
-    --border: 224 15% 20%;
-    --input: 224 15% 20%;
-    --ring: 258 90% 66%;
+    --secondary: 270 60% 90%;
+    --secondary-foreground: 270 50% 15%;
+    --muted: 270 30% 92%;
+    --muted-foreground: 270 20% 45%;
+    --accent: 270 60% 70%; /* Lilac */
+    --accent-foreground: 270 50% 15%;
+    --border: 270 20% 85%;
+    --input: 270 20% 85%;
+    --ring: 270 60% 70%;
     --radius: 1.25rem;
-    
-    --obsidian: #111217;
-    --violet: #7239FA;
-    --ice-grey: #E5E7EB;
   }
 }
 
@@ -41,7 +37,7 @@
   }
   
   body {
-    @apply bg-[#111217] text-[#E5E7EB] antialiased;
+    @apply bg-[#faf5ff] text-[#2B2B2B] antialiased;
     font-family: 'Inter', sans-serif;
   }
   
@@ -52,21 +48,37 @@
 }
 
 @layer components {
-  .glass-card {
-    @apply bg-white/5 backdrop-blur-md border border-white/10;
+  .font-mono-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    color: #4c1d95;
+  }
+  
+  .card-shadow {
+    box-shadow: 0 18px 40px rgba(76, 29, 149, 0.08);
   }
   
   .btn-primary {
-    @apply bg-[#7239FA] text-white px-6 py-3 rounded-full font-medium transition-all duration-300 hover:bg-[#5b2ac7] hover:shadow-[0_0_20px_rgba(114,57,250,0.4)] relative overflow-hidden;
+    @apply bg-[#4c1d95] text-white px-6 py-3 rounded-full font-medium transition-all duration-300 hover:bg-[#3b1475] hover:shadow-lg;
   }
   
   .btn-secondary {
-    @apply bg-white/5 backdrop-blur-sm text-white px-6 py-3 rounded-full font-medium transition-all duration-300 hover:bg-white/10 hover:shadow-[0_0_15px_rgba(255,255,255,0.1)] border border-white/10;
+    @apply bg-white/70 backdrop-blur-sm text-[#4c1d95] px-6 py-3 rounded-full font-medium transition-all duration-300 hover:bg-white hover:shadow-md border border-[#4c1d95]/20;
   }
   
-  /* Custom scrollbar */
-  ::-webkit-scrollbar { width: 6px; }
-  ::-webkit-scrollbar-track { background: #111217; }
-  ::-webkit-scrollbar-thumb { background: #7239FA; border-radius: 4px; }
-  ::-webkit-scrollbar-thumb:hover { background: #5b2ac7; }
+  .grain-overlay {
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    pointer-events: none; z-index: 9999; opacity: 0.03; mix-blend-mode: multiply;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+  }
 }
+
+/* Custom scrollbar */
+::-webkit-scrollbar { width: 8px; }
+::-webkit-scrollbar-track { background: #faf5ff; }
+::-webkit-scrollbar-thumb { background: #4c1d95; border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: #3b1475; }

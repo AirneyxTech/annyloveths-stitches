@@ -35,17 +35,15 @@ export default function ProductBrowser() {
   };
 
   return (
-    <section id="collection" className="py-24 bg-[#111217] relative">
+    <section id="collection" className="py-24 bg-[#faf5ff] relative">
       <div className="max-w-7xl mx-auto px-6 lg:px-12">
         
-        {/* Header */}
         <div className="text-center mb-16">
-          <span className="text-[#7239FA] text-sm font-bold tracking-[0.2em] uppercase mb-4 block">The Collection</span>
-          <h2 className="text-4xl md:text-5xl font-serif text-white font-bold mb-4">Crafted with Intention</h2>
-          <p className="text-gray-400 max-w-2xl mx-auto">Discover our handmade pieces, made with love and the finest yarns.</p>
+          <span className="text-[#4c1d95] text-sm font-bold tracking-[0.2em] uppercase mb-4 block">The Collection</span>
+          <h2 className="text-4xl md:text-5xl font-serif text-[#2B2B2B] font-bold mb-4">Crafted with Intention</h2>
+          <p className="text-gray-500 max-w-2xl mx-auto">Discover our handmade pieces, made with love and the finest yarns.</p>
         </div>
 
-        {/* Category Filters */}
         <div className="flex flex-wrap justify-center gap-2 mb-12">
           {categories.map((cat) => (
             <button
@@ -53,8 +51,8 @@ export default function ProductBrowser() {
               onClick={() => setActiveCategory(cat)}
               className={`px-5 py-2 rounded-full text-sm font-medium transition-all duration-300 ${
                 activeCategory === cat 
-                  ? 'bg-[#7239FA] text-white shadow-[0_0_15px_rgba(114,57,250,0.4)]' 
-                  : 'bg-white/5 text-gray-400 hover:bg-white/10 hover:text-white'
+                  ? 'bg-[#4c1d95] text-white shadow-md' 
+                  : 'bg-white text-gray-500 hover:bg-purple-50 hover:text-[#4c1d95] border border-purple-100'
               }`}
             >
               {cat}
@@ -62,7 +60,6 @@ export default function ProductBrowser() {
           ))}
         </div>
 
-        {/* Product Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {filteredProducts.map((product, index) => (
             <motion.div
@@ -71,7 +68,7 @@ export default function ProductBrowser() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.5, delay: index * 0.05 }}
-              className="group bg-white/5 border border-white/10 rounded-3xl overflow-hidden hover:border-[#7239FA]/50 transition-all duration-500 flex flex-col"
+              className="group bg-white border border-purple-100 rounded-3xl overflow-hidden hover:border-[#4c1d95]/30 hover:shadow-lg transition-all duration-500 flex flex-col"
             >
               <div className="aspect-[4/5] overflow-hidden relative">
                 <img 
@@ -79,19 +76,19 @@ export default function ProductBrowser() {
                   alt={product.name} 
                   className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-[#111217] via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
               </div>
               
               <div className="p-5 flex-1 flex flex-col">
-                <span className="text-xs text-[#7239FA] font-semibold mb-2">{product.category}</span>
-                <h3 className="text-lg font-bold text-white mb-1">{product.name}</h3>
-                <p className="text-gray-400 text-sm mb-4 line-clamp-2">{product.description}</p>
+                <span className="text-xs text-[#4c1d95] font-semibold mb-2">{product.category}</span>
+                <h3 className="text-lg font-bold text-[#2B2B2B] mb-1">{product.name}</h3>
+                <p className="text-gray-500 text-sm mb-4 line-clamp-2">{product.description}</p>
                 
                 <div className="mt-auto flex items-center justify-between">
-                  <span className="text-xl font-serif text-white font-bold">₦{product.price.toLocaleString()}</span>
+                  <span className="text-xl font-serif text-[#2B2B2B] font-bold">₦{product.price.toLocaleString()}</span>
                   <button 
                     onClick={() => handleAddToCart(product)}
-                    className="p-3 bg-white/10 rounded-full text-white hover:bg-[#7239FA] transition-colors duration-300"
+                    className="p-3 bg-purple-50 rounded-full text-[#4c1d95] hover:bg-[#4c1d95] hover:text-white transition-colors duration-300"
                   >
                     <ShoppingBag className="w-5 h-5" />
                   </button>

@@ -20,29 +20,19 @@ export default function CartModal() {
   return (
     <>
       <div className="fixed inset-0 z-[100]">
-        {/* Backdrop */}
-        <div
-          className="absolute inset-0 bg-black/30 backdrop-blur-sm"
-          onClick={() => setIsCartOpen(false)}
-        />
+        <div className="absolute inset-0 bg-black/30 backdrop-blur-sm" onClick={() => setIsCartOpen(false)} />
         
-        {/* Modal */}
         <div className="absolute right-0 top-0 h-full w-full max-w-md bg-[#faf5ff] shadow-2xl flex flex-col animate-slide-in-right">
-          {/* Header */}
           <div className="flex items-center justify-between p-6 border-b border-purple-100">
             <div className="flex items-center gap-3">
               <ShoppingBag className="w-6 h-6 text-[#4c1d95]" />
               <h2 className="font-serif text-2xl font-semibold text-[#2B2B2B]">Your Cart</h2>
             </div>
-            <button
-              onClick={() => setIsCartOpen(false)}
-              className="p-2 hover:bg-purple-100/50 rounded-full transition-colors"
-            >
+            <button onClick={() => setIsCartOpen(false)} className="p-2 hover:bg-purple-100/50 rounded-full transition-colors">
               <X className="w-5 h-5 text-[#2B2B2B]" />
             </button>
           </div>
 
-          {/* Cart Items */}
           <div className="flex-1 overflow-y-auto p-6">
             {items.length === 0 ? (
               <div className="flex flex-col items-center justify-center h-full text-center">
@@ -89,7 +79,6 @@ export default function CartModal() {
             )}
           </div>
 
-          {/* Footer */}
           {items.length > 0 && (
             <div className="p-6 border-t border-purple-100 bg-white/30">
               <div className="flex justify-between items-center mb-4">
@@ -99,18 +88,12 @@ export default function CartModal() {
                 </span>
               </div>
               
-              <button
-                onClick={() => setIsCheckoutOpen(true)}
-                className="w-full btn-primary flex items-center justify-center gap-2 mb-3"
-              >
+              <button onClick={() => setIsCheckoutOpen(true)} className="w-full btn-primary flex items-center justify-center gap-2 mb-3">
                 <ShoppingBag className="w-5 h-5" />
                 Proceed to Checkout
               </button>
               
-              <button
-                onClick={clearCart}
-                className="w-full text-sm text-gray-500 hover:text-[#2B2B2B] transition-colors"
-              >
+              <button onClick={clearCart} className="w-full text-sm text-gray-500 hover:text-[#2B2B2B] transition-colors">
                 Clear Cart
               </button>
             </div>
@@ -118,7 +101,6 @@ export default function CartModal() {
         </div>
       </div>
 
-      {/* The new Checkout Modal */}
       <CheckoutModal isOpen={isCheckoutOpen} onClose={() => setIsCheckoutOpen(false)} />
     </>
   );
