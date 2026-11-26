@@ -1,17 +1,25 @@
-import { useState } from 'react';
-import { products, type Category, type Product } from '../data/products';
+import { useState, useEffect } from 'react';
+import { supabase } from '../lib/supabase';
 import { ShoppingBag } from 'lucide-react';
 import { motion } from 'framer-motion';
 import ProductModal from '../components/ProductModal';
 
-const categories: (Category | 'All')[] = [
-  'All', 'Bags & Purses', 'Gowns & Dresses', 'Sets & Swimwear', 
-  'Hats & Scarves', 'Waistbeads & Jewelry', 'Accessories', 'Home & Nursery'
-];
-
 export default function ProductBrowser() {
-  const [activeCategory, setActiveCategory] = useState<Category | 'All'>('All');
-  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+  const [products, setProducts] = useState<any[]>([]);
+  const [activeCategory, setActiveCategory] = useState<string>('All');
+  const [selectedProduct, setSelectedProduct] = useState<any | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  const categories = ['All', 'Bags & Purses', 'Gowns & Dresses', 'Sets & Swimwear', 'Hats & Scarves', 'Waistbeads & Jewelry', 'Accessories', 'Home & Nursery'];
+
+  useEffect(() => {
+    const fetchProducts = async () => {
+      const { data } = await supabase.from('products').select('*').order('created_at', { ascending: false });
+      if (data) setProducts(data);
+      setLoading(false);
+    };
+    fetchProducts();
+  }, []);
 
   const filteredProducts = activeCategory === 'All' 
     ? products 
@@ -26,7 +34,7 @@ export default function ProductBrowser() {
           <h2 className="text-3xl md:text-5xl font-serif text-[#2B2B2B] font-bold mb-4">Crafted with Intention</h2>
         </div>
 
-        {/* Scrollable categories on mobile */}
+        {/* Category Filter */}
         <div className="flex overflow-x-auto pb-4 mb-8 gap-2 snap-x hide-scrollbar md:justify-center">
           {categories.map((cat) => (
             <button
@@ -43,44 +51,63 @@ export default function ProductBrowser() {
           ))}
         </div>
 
-        {/* 2 columns on mobile, 3 on tablet, 4 on desktop */}
-        <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-6">
-          {filteredProducts.map((product, index) => (
-            <motion.div
-              key={product.id}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: index * 0.05 }}
-              className="group bg-white border border-purple-100 rounded-2xl md:rounded-3xl overflow-hidden hover:border-[#4c1d95]/30 hover:shadow-lg transition-all duration-500 flex flex-col cursor-pointer"
-              onClick={() => setSelectedProduct(product)}
-            >
-              <div className="aspect-[4/5] overflow-hidden relative">
-                <img 
-                  src={product.image} 
-                  alt={product.name} 
-                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                />
-              </div>
-              
-              <div className="p-3 md:p-5 flex-1 flex flex-col">
-                <span className="text-[10px] md:text-xs text-[#4c1d95] font-semibold mb-1">{product.category}</span>
-                <h3 className="text-sm md:text-lg font-bold text-[#2B2B2B] mb-1 leading-tight">{product.name}</h3>
-                
-                <div className="mt-auto pt-2 flex items-center justify-between">
-                  <span className="text-sm md:text-xl font-serif text-[#2B2B2B] font-bold">₦{product.price.toLocaleString()}</span>
-                  <div className="p-2 md:p-3 bg-purple-50 rounded-full text-[#4c1d95] group-hover:bg-[#4c1d95] group-hover:text-white transition-colors duration-300">
-                    <ShoppingBag className="w-4 h-4 md:w-5 md:h-5" />
+        {/* Products Grid */}
+        {loading ? (
+          <div className="text-center text-gray-500 py-10">Loading collection...</div>
+        ) : (
+          <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-6">
+            {filteredProducts.map((product, index) => {
+              const discountedPrice = product.discount > 0 
+                ? product.price - (product.price * (product.discount / 100)) 
+                : product.price;
+
+              return (
+                <motion.div
+                  key={product.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.5, delay: index * 0.05 }}
+                  className="group bg-white border border-purple-100 rounded-2xl md:rounded-3xl overflow-hidden hover:border-[#4c1d95]/30 hover:shadow-lg transition-all duration-500 flex flex-col cursor-pointer"
+                  onClick={() => setSelectedProduct({ ...product, price: discountedPrice })}
+                >
+                  <div className="aspect-[4/5] overflow-hidden relative">
+                    <img 
+                      src={product.image_url} 
+                      alt={product.name} 
+                      className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                    />
+                    {product.discount > 0 && (
+                      <div className="absolute top-2 right-2 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-md">
+                        -{product.discount}%
+                      </div>
+                    )}
                   </div>
-                </div>
-              </div>
-            </motion.div>
-          ))}
-        </div>
-        
+                  
+                  <div className="p-3 md:p-5 flex-1 flex flex-col">
+                    <span className="text-[10px] md:text-xs text-[#4c1d95] font-semibold mb-1">{product.category}</span>
+                    <h3 className="text-sm md:text-lg font-bold text-[#2B2B2B] mb-1 leading-tight">{product.name}</h3>
+                    
+                    <div className="mt-auto pt-2 flex items-center justify-between">
+                      <div>
+                        {product.discount > 0 && (
+                          <span className="text-xs text-gray-400 line-through block">₦{product.price.toLocaleString()}</span>
+                        )}
+                        <span className="text-sm md:text-xl font-serif text-[#2B2B2B] font-bold">₦{discountedPrice.toLocaleString()}</span>
+                      </div>
+                      <div className="p-2 md:p-3 bg-purple-50 rounded-full text-[#4c1d95] group-hover:bg-[#4c1d95] group-hover:text-white transition-colors duration-300">
+                        <ShoppingBag className="w-4 h-4 md:w-5 md:h-5" />
+                      </div>
+                    </div>
+                  </div>
+                </motion.div>
+              );
+            })}
+          </div>
+        )}
       </div>
 
-      {/* The Customization Popup */}
+      {/* Product Modal for Customization */}
       <ProductModal product={selectedProduct} onClose={() => setSelectedProduct(null)} />
     </section>
   );
