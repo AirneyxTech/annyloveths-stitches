@@ -1,17 +1,21 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '../lib/supabase';
-import { Package, DollarSign, Clock, CheckCircle, LogOut, Printer, TrendingUp, Bell } from 'lucide-react';
+import { Package, DollarSign, LogOut, Printer, Upload, Plus, Tag } from 'lucide-react';
 
 export default function Admin() {
   const [session, setSession] = useState<any>(null);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(true);
-  const [loginLoading, setLoginLoading] = useState(false);
-  const [errorMsg, setErrorMsg] = useState('');
+  const [activeTab, setActiveTab] = useState<'orders' | 'products'>('orders');
   
   const [orders, setOrders] = useState<any[]>([]);
-  const [activeTab, setActiveTab] = useState<'orders' | 'analytics' | 'vip'>('orders');
+  const [products, setProducts] = useState<any[]>([]);
+
+  // New Product Form State
+  const [newProduct, setNewProduct] = useState({ name: '', price: '', category: '', description: '', discount: '0' });
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -20,226 +24,160 @@ export default function Admin() {
     });
   }, []);
 
+  useEffect(() => {
+    if (session) {
+      fetchOrders();
+      fetchProducts();
+    }
+  }, [session]);
+
   const fetchOrders = async () => {
-    const { data, error } = await supabase.from('orders').select('*').order('created_at', { ascending: false });
-    if (error) console.error("Error fetching orders:", error);
-    else if (data) setOrders(data);
+    const { data } = await supabase.from('orders').select('*').order('created_at', { ascending: false });
+    if (data) setOrders(data);
   };
 
-  useEffect(() => {
-    if (session) fetchOrders();
-  }, [session]);
+  const fetchProducts = async () => {
+    const { data } = await supabase.from('products').select('*').order('created_at', { ascending: false });
+    if (data) setProducts(data);
+  };
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoginLoading(true);
-    setErrorMsg('');
-    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-    if (error) {
-      setErrorMsg(error.message);
-      setLoginLoading(false);
-    } else {
-      setSession(data.session);
-      setLoginLoading(false);
-    }
+    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    if (error) alert(error.message);
   };
 
-  const handleLogout = () => supabase.auth.signOut();
-
-  const updateStatus = async (id: string, newStatus: string) => {
+  const updateOrderStatus = async (id: string, newStatus: string) => {
     await supabase.from('orders').update({ status: newStatus }).eq('id', id);
     fetchOrders();
   };
 
-  const printReceipt = (order: any) => {
-    const printWindow = window.open('', '_blank');
-    if (!printWindow) {
-      alert("Please allow pop-ups to print receipts.");
-      return;
+  const handleAddProduct = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsUploading(true);
+
+    let imageUrl = '';
+
+    // 1. Upload Image to Supabase Storage
+    if (imageFile) {
+      const fileExt = imageFile.name.split('.').pop();
+      const fileName = `${Math.random()}.${fileExt}`;
+      const { error: uploadError } = await supabase.storage.from('product-images').upload(fileName, imageFile);
+      
+      if (!uploadError) {
+        const { data } = supabase.storage.from('product-images').getPublicUrl(fileName);
+        imageUrl = data.publicUrl;
+      }
     }
-    
-    const itemsHtml = order.items.map((i: any) => `
-      <tr>
-        <td style="padding: 10px; border-bottom: 1px solid #ddd;">
-          ${i.quantity}x ${i.name} ${i.selectedColor ? `<br><small style="color:#666">Color: ${i.selectedColor}</small>` : ''}
-          ${i.customizationNotes ? `<br><small style="color:#666; font-style:italic;">Note: "${i.customizationNotes}"</small>` : ''}
-        </td>
-        <td style="padding: 10px; border-bottom: 1px solid #ddd;">₦${(i.price * i.quantity).toLocaleString()}</td>
-      </tr>
-    `).join('');
-    
-    const shortId = order.id.split('-')[0].toUpperCase();
 
-    const receiptHTML = `
-      <html>
-        <head>
-          <title>Receipt - AnnyLoveth's Craft Haus</title>
-          <style>
-            body { font-family: sans-serif; padding: 40px; color: #333; max-width: 600px; margin: 0 auto; }
-            .header { text-align: center; border-bottom: 2px solid #4c1d95; padding-bottom: 20px; margin-bottom: 20px; }
-            .header h1 { color: #4c1d95; margin: 0; font-family: serif; }
-            .details { margin-bottom: 20px; }
-            table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
-            th, td { text-align: left; padding: 10px; border-bottom: 1px solid #ddd; }
-            .total { text-align: right; font-size: 1.2em; font-weight: bold; color: #4c1d95; margin-top: 20px; }
-            .footer { text-align: center; margin-top: 40px; font-size: 0.9em; color: #666; border-top: 1px dashed #ccc; padding-top: 20px; }
-          </style>
-        </head>
-        <body>
-          <div class="header">
-            <h1>AnnyLoveth's Craft Haus</h1>
-            <p>Crochet • Knit • Slay</p>
-          </div>
-          <div class="details">
-            <p><strong>Receipt For:</strong> ${order.customer_name}</p>
-            <p><strong>Phone:</strong> ${order.phone_number}</p>
-            <p><strong>Order ID:</strong> #${shortId}</p>
-            <p><strong>Date:</strong> ${new Date(order.created_at).toLocaleDateString()}</p>
-          </div>
-          <table>
-            <tr><th>Item</th><th>Amount</th></tr>
-            ${itemsHtml}
-          </table>
-          <div class="total">Total: ₦${order.total_amount.toLocaleString()}</div>
-          <div class="footer">
-            <p>Thank you for shopping with us!</p>
-            <p>WhatsApp: +234 911 800 4875</p>
-            <p><em>Note: Payment of 60% deposit activates production.</em></p>
-          </div>
-        </body>
-      </html>
-    `;
-
-    printWindow.document.open();
-    printWindow.document.write(receiptHTML);
-    printWindow.document.close();
-    
-    printWindow.onload = () => {
-      printWindow.focus();
-      printWindow.print();
-    };
+    // 2. Save Product to Database
+    if (imageUrl) {
+      await supabase.from('products').insert([{
+        name: newProduct.name,
+        price: parseFloat(newProduct.price),
+        category: newProduct.category,
+        description: newProduct.description,
+        discount: parseFloat(newProduct.discount || '0'),
+        image_url: imageUrl
+      }]);
+      setNewProduct({ name: '', price: '', category: '', description: '', discount: '0' });
+      setImageFile(null);
+      fetchProducts();
+    }
+    setIsUploading(false);
   };
 
-  const notifyVIPs = () => {
-    const message = "Hello VIP! 🌸 We just dropped new crochet designs on the website. Come check them out before they sell out! https://annyloveths-stitches.vercel.app";
-    window.open(`https://wa.me/?text=${encodeURIComponent(message)}`, '_blank');
-  };
-
-  if (loading) return <div className="min-h-screen flex items-center justify-center bg-[#faf5ff] text-[#4c1d95]">Loading...</div>;
+  if (loading) return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
 
   if (!session) {
     return (
       <div className="min-h-screen bg-[#faf5ff] flex items-center justify-center p-6">
         <form onSubmit={handleLogin} className="bg-white p-8 rounded-3xl shadow-xl w-full max-w-sm space-y-4 border border-purple-100">
           <h2 className="text-2xl font-serif font-bold text-[#4c1d95] text-center mb-6">Admin Login</h2>
-          {errorMsg && <div className="bg-red-50 text-red-500 p-3 rounded-lg text-sm mb-4">{errorMsg}</div>}
-          <input type="email" placeholder="Email" value={email} onChange={e => setEmail(e.target.value)} className="w-full px-4 py-3 rounded-xl bg-purple-50 border border-purple-100 outline-none focus:border-[#4c1d95]" required />
-          <input type="password" placeholder="Password" value={password} onChange={e => setPassword(e.target.value)} className="w-full px-4 py-3 rounded-xl bg-purple-50 border border-purple-100 outline-none focus:border-[#4c1d95]" required />
-          <button type="submit" disabled={loginLoading} className="w-full btn-primary disabled:opacity-50">
-            {loginLoading ? 'Logging in...' : 'Log In'}
-          </button>
+          <input type="email" placeholder="Email" value={email} onChange={e => setEmail(e.target.value)} className="w-full px-4 py-3 rounded-xl bg-purple-50 border border-purple-100 outline-none" required />
+          <input type="password" placeholder="Password" value={password} onChange={e => setPassword(e.target.value)} className="w-full px-4 py-3 rounded-xl bg-purple-50 border border-purple-100 outline-none" required />
+          <button type="submit" className="btn-primary w-full">Log In</button>
         </form>
       </div>
     );
   }
 
-  const totalRevenue = orders.reduce((sum, order) => sum + order.total_amount, 0);
-  const pendingOrders = orders.filter(o => o.status === 'Received' || o.status === 'In progress').length;
-  const completedOrders = orders.filter(o => o.status === 'Delivered').length;
-
   return (
-    <div className="min-h-screen bg-[#faf5ff] flex flex-col md:flex-row text-[#2B2B2B]">
+    <div className="min-h-screen bg-[#faf5ff] flex flex-col md:flex-row">
+      {/* Sidebar */}
       <div className="w-full md:w-64 bg-[#4c1d95] text-white p-6 flex flex-col">
         <h2 className="text-2xl font-serif font-bold mb-8">Craft Haus Admin</h2>
         <nav className="space-y-2 flex-1">
           <button onClick={() => setActiveTab('orders')} className={`w-full text-left p-3 rounded-xl flex items-center gap-3 ${activeTab === 'orders' ? 'bg-white/20' : 'hover:bg-white/10'}`}><Package className="w-5 h-5"/> Orders</button>
-          <button onClick={() => setActiveTab('analytics')} className={`w-full text-left p-3 rounded-xl flex items-center gap-3 ${activeTab === 'analytics' ? 'bg-white/20' : 'hover:bg-white/10'}`}><TrendingUp className="w-5 h-5"/> Analytics</button>
-          <button onClick={() => setActiveTab('vip')} className={`w-full text-left p-3 rounded-xl flex items-center gap-3 ${activeTab === 'vip' ? 'bg-white/20' : 'hover:bg-white/10'}`}><Bell className="w-5 h-5"/> Notifications</button>
+          <button onClick={() => setActiveTab('products')} className={`w-full text-left p-3 rounded-xl flex items-center gap-3 ${activeTab === 'products' ? 'bg-white/20' : 'hover:bg-white/10'}`}><Tag className="w-5 h-5"/> Products</button>
         </nav>
-        <button onClick={handleLogout} className="p-3 rounded-xl flex items-center gap-3 hover:bg-white/10 mt-auto"><LogOut className="w-5 h-5"/> Log Out</button>
+        <button onClick={() => supabase.auth.signOut()} className="p-3 rounded-xl flex items-center gap-3 hover:bg-white/10 mt-auto"><LogOut className="w-5 h-5"/> Log Out</button>
       </div>
 
+      {/* Main Content */}
       <div className="flex-1 p-6 md:p-10 overflow-y-auto">
-        {activeTab === 'analytics' && (
-          <div>
-            <h1 className="text-3xl font-serif font-bold text-[#4c1d95] mb-8">Overview</h1>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div className="bg-white p-6 rounded-3xl shadow-sm border border-purple-100">
-                <DollarSign className="w-8 h-8 text-green-500 mb-4" />
-                <p className="text-gray-500">Total Revenue</p>
-                <h2 className="text-3xl font-bold text-[#2B2B2B]">₦{totalRevenue.toLocaleString()}</h2>
-              </div>
-              <div className="bg-white p-6 rounded-3xl shadow-sm border border-purple-100">
-                <Clock className="w-8 h-8 text-orange-500 mb-4" />
-                <p className="text-gray-500">Pending Orders</p>
-                <h2 className="text-3xl font-bold text-[#2B2B2B]">{pendingOrders}</h2>
-              </div>
-              <div className="bg-white p-6 rounded-3xl shadow-sm border border-purple-100">
-                <CheckCircle className="w-8 h-8 text-blue-500 mb-4" />
-                <p className="text-gray-500">Completed Orders</p>
-                <h2 className="text-3xl font-bold text-[#2B2B2B]">{completedOrders}</h2>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {activeTab === 'vip' && (
-          <div>
-            <h1 className="text-3xl font-serif font-bold text-[#4c1d95] mb-8">Customer Notifications</h1>
-            <div className="bg-white p-8 rounded-3xl shadow-sm border border-purple-100 max-w-2xl">
-              <Bell className="w-12 h-12 text-[#d8b4fe] mb-4" />
-              <h2 className="text-xl font-bold text-[#2B2B2B] mb-2">Announce New Designs</h2>
-              <p className="text-gray-500 mb-6">Click this button to generate a WhatsApp broadcast message for her VIP customers about new designs and discounts.</p>
-              <button onClick={notifyVIPs} className="btn-primary flex items-center gap-2">
-                <Bell className="w-5 h-5" /> Generate WhatsApp Broadcast
-              </button>
-            </div>
-          </div>
-        )}
-
+        
+        {/* ORDERS TAB */}
         {activeTab === 'orders' && (
           <div>
             <h1 className="text-3xl font-serif font-bold text-[#4c1d95] mb-8">Manage Orders</h1>
             <div className="space-y-4">
-              {orders.length === 0 && <p className="text-gray-500">No orders yet. Place a test order on the live site to see it here!</p>}
               {orders.map(order => (
                 <div key={order.id} className="bg-white p-6 rounded-3xl shadow-sm border border-purple-100">
-                  <div className="flex flex-col md:flex-row justify-between md:items-center gap-4 mb-4 border-b border-purple-50 pb-4">
+                  <div className="flex justify-between items-center border-b border-purple-50 pb-4 mb-4">
                     <div>
                       <h3 className="font-bold text-lg text-[#2B2B2B]">#{order.id.split('-')[0].toUpperCase()}</h3>
                       <p className="text-sm text-gray-500">{order.customer_name} • {order.phone_number}</p>
-                      <p className="text-xs text-gray-400">{new Date(order.created_at).toLocaleString()}</p>
                     </div>
-                    <div className="flex flex-wrap items-center gap-2">
-                      <select 
-                        value={order.status} 
-                        onChange={(e) => updateStatus(order.id, e.target.value)}
-                        className="px-4 py-2 rounded-lg bg-purple-50 border border-purple-100 text-sm font-medium outline-none cursor-pointer"
-                      >
-                        <option value="Received">Received</option>
-                        <option value="In progress">In Progress</option>
-                        <option value="Ready">Ready</option>
-                        <option value="Delivered">Delivered</option>
-                      </select>
-                      <button onClick={() => printReceipt(order)} className="px-4 py-2 bg-purple-100 text-[#4c1d95] rounded-lg text-sm font-medium hover:bg-purple-200 flex items-center gap-2 transition-colors">
-                        <Printer className="w-4 h-4" /> Receipt
-                      </button>
-                    </div>
+                    <select value={order.status} onChange={(e) => updateOrderStatus(order.id, e.target.value)} className="px-4 py-2 rounded-lg bg-purple-50 border border-purple-100 text-sm font-medium outline-none">
+                      <option value="Received">Received</option>
+                      <option value="In progress">In Progress</option>
+                      <option value="Ready">Ready</option>
+                      <option value="Delivered">Delivered</option>
+                    </select>
                   </div>
-                  
-                  <div className="text-sm">
-                    <p className="mb-2"><strong className="text-gray-700">Address:</strong> {order.delivery_address}</p>
-                    <p className="mb-2"><strong className="text-gray-700">Total:</strong> ₦{order.total_amount.toLocaleString()}</p>
-                    <div className="mt-3 bg-purple-50 p-3 rounded-xl">
-                      <strong className="text-gray-700 block mb-1">Items:</strong>
-                      {order.items.map((item: any, idx: number) => (
-                        <div key={idx} className="text-gray-600 text-xs mb-1">
-                          {item.quantity}x {item.name} 
-                          {item.selectedColor && item.selectedColor !== 'Original' && ` (Color: ${item.selectedColor})`}
-                          {item.customizationNotes && ` - Note: ${item.customizationNotes}`}
-                        </div>
-                      ))}
-                    </div>
+                  <p><strong>Total:</strong> ₦{order.total_amount.toLocaleString()} ({order.payment_status})</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* PRODUCTS TAB */}
+        {activeTab === 'products' && (
+          <div>
+            <h1 className="text-3xl font-serif font-bold text-[#4c1d95] mb-8">Manage Products</h1>
+            
+            {/* Add New Product Form */}
+            <div className="bg-white p-6 rounded-3xl shadow-sm border border-purple-100 mb-8">
+              <h2 className="text-xl font-bold mb-4 flex items-center gap-2"><Plus className="w-5 h-5"/> Add New Product</h2>
+              <form onSubmit={handleAddProduct} className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <input type="text" placeholder="Product Name" required value={newProduct.name} onChange={e => setNewProduct({...newProduct, name: e.target.value})} className="p-3 rounded-xl bg-purple-50 border border-purple-100 outline-none" />
+                <input type="number" placeholder="Price (₦)" required value={newProduct.price} onChange={e => setNewProduct({...newProduct, price: e.target.value})} className="p-3 rounded-xl bg-purple-50 border border-purple-100 outline-none" />
+                <input type="text" placeholder="Category (e.g., Bags & Purses)" required value={newProduct.category} onChange={e => setNewProduct({...newProduct, category: e.target.value})} className="p-3 rounded-xl bg-purple-50 border border-purple-100 outline-none" />
+                <input type="number" placeholder="Discount % (Optional)" value={newProduct.discount} onChange={e => setNewProduct({...newProduct, discount: e.target.value})} className="p-3 rounded-xl bg-purple-50 border border-purple-100 outline-none" />
+                <textarea placeholder="Description" value={newProduct.description} onChange={e => setNewProduct({...newProduct, description: e.target.value})} className="p-3 rounded-xl bg-purple-50 border border-purple-100 outline-none md:col-span-2" />
+                
+                <div className="md:col-span-2">
+                  <label className="block text-sm text-gray-500 mb-2">Upload Image</label>
+                  <input type="file" accept="image/*" onChange={e => setImageFile(e.target.files?.[0] || null)} className="w-full p-2 border border-purple-100 rounded-xl" required />
+                </div>
+
+                <button type="submit" disabled={isUploading} className="btn-primary md:col-span-2 flex items-center justify-center gap-2">
+                  <Upload className="w-5 h-5" /> {isUploading ? 'Uploading...' : 'Add Product to Store'}
+                </button>
+              </form>
+            </div>
+
+            {/* Product List */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {products.map(p => (
+                <div key={p.id} className="bg-white p-4 rounded-2xl border border-purple-100 flex gap-4">
+                  <img src={p.image_url} className="w-20 h-20 object-cover rounded-lg" />
+                  <div>
+                    <h3 className="font-bold">{p.name}</h3>
+                    <p className="text-sm text-gray-500">₦{p.price.toLocaleString()}</p>
+                    <p className="text-xs text-purple-600">{p.category}</p>
                   </div>
                 </div>
               ))}
